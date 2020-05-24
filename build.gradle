@@ -1,4 +1,8 @@
 buildscript {
+
+    // https://github.com/JetBrains/kotlin/releases/latest
+    ext.kotlin_version = '1.3.71'
+
     repositories {
         jcenter()
         google()
@@ -6,6 +10,7 @@ buildscript {
     dependencies {
         //https://developer.android.com/studio/releases/gradle-plugin
         classpath 'com.android.tools.build:gradle:3.6.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 

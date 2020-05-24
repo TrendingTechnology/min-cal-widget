@@ -1,21 +1,21 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'pmd'
 apply plugin: 'checkstyle'
 
 android {
 
     compileSdkVersion 29
+
     //https://developer.android.com/studio/releases/build-tools
     buildToolsVersion '29.0.3'
 
     defaultConfig {
-
         applicationId "cat.mvmike.minimalcalendarwidget"
         minSdkVersion 26    // 8.0
         targetSdkVersion 29 // 10.0
         versionCode 20
         versionName "1.4.0"
-
         multiDexEnabled true
     }
 
@@ -59,6 +59,12 @@ android {
         abortOnError true
     }
 
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+    }
+
+
     compileOptions {
         compileOptions.encoding = "UTF-8"
 
@@ -81,6 +87,9 @@ android {
 }
 
 dependencies {
+    //
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
     //https://developer.android.com/jetpack/androidx/versions/
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
