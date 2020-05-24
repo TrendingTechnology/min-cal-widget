@@ -1,65 +1,62 @@
 // Copyright (c) 2018, Miquel Martí <miquelmarti111@gmail.com>
 // See LICENSE for licensing information
+package cat.mvmike.minimalcalendarwidget.domain.header
 
-package cat.mvmike.minimalcalendarwidget.domain.header;
+import android.content.Context
+import android.widget.RemoteViews
+import cat.mvmike.minimalcalendarwidget.BaseTest
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
+import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
+import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
+import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentMatchers
+import org.mockito.InOrder
+import org.mockito.Mockito
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 
-import android.content.Context;
-import android.widget.RemoteViews;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-
-import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver;
-
-public final class MonthYearHeaderService {
-
-    private static final String MONTH_FORMAT_NON_STANDALONE = "MMMM";
-
-    private static final String MONTH_FORMAT_STANDALONE = "LLLL";
+object MonthYearHeaderService {
+    private val MONTH_FORMAT_NON_STANDALONE: String? = "MMMM"
+    private val MONTH_FORMAT_STANDALONE: String? = "LLLL"
 
     // need to differ special standalone locales because of https://bugs.openjdk.java.net/browse/JDK-8114833
-    private static final Set<String> LANGUAGES_WITH_STANDALONE_CASE = new HashSet<>(Collections.singletonList("ru"));
-
-    private static final String YEAR_FORMAT = "yyyy";
-
-    private static final float HEADER_RELATIVE_YEAR_SIZE = 0.7f;
-
-    public static void setMonthYearHeader(final Context context, final RemoteViews widgetRemoteView) {
-
-        Locale locale = SystemResolver.get().getLocale(context);
-        Instant systemInstant = SystemResolver.get().getInstant();
-
-        String displayMonth = getMonthDisplayValue(getMonthFormatter(locale).format(systemInstant), locale);
-        String displayYear = getYearFormatter(locale).format(systemInstant);
-
-        SystemResolver.get().createMonthYearHeader(widgetRemoteView, displayMonth + " " + displayYear, HEADER_RELATIVE_YEAR_SIZE);
+    private val LANGUAGES_WITH_STANDALONE_CASE: MutableSet<String?>? = HashSet(listOf<String?>("ru"))
+    private val YEAR_FORMAT: String? = "yyyy"
+    private const val HEADER_RELATIVE_YEAR_SIZE = 0.7f
+    fun setMonthYearHeader(context: Context?, widgetRemoteView: RemoteViews?) {
+        val locale: Locale = SystemResolver.Companion.get().getLocale(context)
+        val systemInstant: Instant = SystemResolver.Companion.get().getInstant()
+        val displayMonth = getMonthDisplayValue(getMonthFormatter(locale).format(systemInstant), locale)
+        val displayYear = getYearFormatter(locale).format(systemInstant)
+        SystemResolver.Companion.get().createMonthYearHeader(widgetRemoteView, "$displayMonth $displayYear", HEADER_RELATIVE_YEAR_SIZE)
     }
 
-    private static DateTimeFormatter getMonthFormatter(final Locale locale) {
+    private fun getMonthFormatter(locale: Locale?): DateTimeFormatter? {
         return DateTimeFormatter
-            .ofPattern(LANGUAGES_WITH_STANDALONE_CASE.contains(locale.getLanguage()) ?
-                MONTH_FORMAT_STANDALONE : MONTH_FORMAT_NON_STANDALONE)
-            .withLocale(locale)
-            .withZone(ZoneId.systemDefault());
+                .ofPattern(if (LANGUAGES_WITH_STANDALONE_CASE.contains(locale.getLanguage())) MONTH_FORMAT_STANDALONE else MONTH_FORMAT_NON_STANDALONE)
+                .withLocale(locale)
+                .withZone(ZoneId.systemDefault())
     }
 
-    private static DateTimeFormatter getYearFormatter(final Locale locale) {
+    private fun getYearFormatter(locale: Locale?): DateTimeFormatter? {
         return DateTimeFormatter
-            .ofPattern(YEAR_FORMAT)
-            .withLocale(locale)
-            .withZone(ZoneId.systemDefault());
+                .ofPattern(YEAR_FORMAT)
+                .withLocale(locale)
+                .withZone(ZoneId.systemDefault())
     }
 
-    private static String getMonthDisplayValue(final String month, final Locale locale) {
-        String[] monthTokens = month.split(" ");
-        String lastToken = monthTokens[monthTokens.length - 1];
-        return lastToken.substring(0, 1).toUpperCase(locale)
-            + lastToken.substring(1).toLowerCase(locale);
-
+    private fun getMonthDisplayValue(month: String?, locale: Locale?): String? {
+        val monthTokens: Array<String?> = month.split(" ").toTypedArray()
+        val lastToken = monthTokens[monthTokens.size - 1]
+        return (lastToken.substring(0, 1).toUpperCase(locale)
+                + lastToken.substring(1).toLowerCase(locale))
     }
 }

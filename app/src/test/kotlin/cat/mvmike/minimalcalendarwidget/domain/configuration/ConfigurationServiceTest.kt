@@ -1,78 +1,56 @@
 // Copyright (c) 2018, Miquel Martí <miquelmarti111@gmail.com>
 // See LICENSE for licensing information
+package cat.mvmike.minimalcalendarwidget.domain.configuration
 
-package cat.mvmike.minimalcalendarwidget.domain.configuration;
+import cat.mvmike.minimalcalendarwidget.BaseTest
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Colour
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Symbol
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.mockito.Mockito
+import java.time.DayOfWeek
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-
-import java.time.DayOfWeek;
-
-import cat.mvmike.minimalcalendarwidget.BaseTest;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Colour;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Symbol;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme;
-
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService.clearConfiguration;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService.getInstancesSymbols;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService.getInstancesSymbolsColours;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService.getStartWeekDay;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService.getTheme;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-class ConfigurationServiceTest extends BaseTest {
-
+internal class ConfigurationServiceTest : BaseTest() {
     @Test
-    void clearConfiguration_shouldRemoveAllApplicationPreferences() {
-
-        clearConfiguration(context);
-
-        verify(editor, times(1)).clear();
-        verify(editor, times(1)).apply();
-        verifyNoMoreInteractions(editor);
+    fun clearConfiguration_shouldRemoveAllApplicationPreferences() {
+        ConfigurationService.clearConfiguration(context)
+        Mockito.verify(editor, Mockito.times(1)).clear()
+        Mockito.verify(editor, Mockito.times(1)).apply()
+        Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
-    @EnumSource(value = Theme.class)
-    void getTheme_shouldReturnSharedPreferencesValue(final Theme theme) {
-
-        mockTheme(sharedPreferences, theme);
-
-        assertEquals(theme, getTheme(context));
-        verifyNoMoreInteractions(editor);
+    @EnumSource(value = Theme::class)
+    fun getTheme_shouldReturnSharedPreferencesValue(theme: Theme?) {
+        BaseTest.Companion.mockTheme(sharedPreferences, theme)
+        Assertions.assertEquals(theme, ConfigurationService.getTheme(context))
+        Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
-    @EnumSource(value = DayOfWeek.class)
-    void getStartWeekDay_shouldReturnSharedPreferencesValue(final DayOfWeek dayOfWeek) {
-
-        mockStartWeekDay(sharedPreferences, dayOfWeek);
-
-        assertEquals(dayOfWeek, getStartWeekDay(context));
-        verifyNoMoreInteractions(editor);
+    @EnumSource(value = DayOfWeek::class)
+    fun getStartWeekDay_shouldReturnSharedPreferencesValue(dayOfWeek: DayOfWeek?) {
+        BaseTest.Companion.mockStartWeekDay(sharedPreferences, dayOfWeek)
+        Assertions.assertEquals(dayOfWeek, ConfigurationService.getStartWeekDay(context))
+        Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
-    @EnumSource(value = Symbol.class)
-    void getInstancesSymbols_shouldReturnSharedPreferencesValue(final Symbol symbol) {
-
-        mockInstancesSymbols(sharedPreferences, symbol);
-
-        assertEquals(symbol, getInstancesSymbols(context));
-        verifyNoMoreInteractions(editor);
+    @EnumSource(value = Symbol::class)
+    fun getInstancesSymbols_shouldReturnSharedPreferencesValue(symbol: Symbol?) {
+        BaseTest.Companion.mockInstancesSymbols(sharedPreferences, symbol)
+        Assertions.assertEquals(symbol, ConfigurationService.getInstancesSymbols(context))
+        Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
-    @EnumSource(value = Colour.class)
-    void getInstancesSymbolsColours_shouldReturnSharedPreferencesValue(final Colour colour) {
-
-        mockInstancesSymbolsColour(sharedPreferences, colour);
-
-        assertEquals(colour, getInstancesSymbolsColours(context));
-        verifyNoMoreInteractions(editor);
+    @EnumSource(value = Colour::class)
+    fun getInstancesSymbolsColours_shouldReturnSharedPreferencesValue(colour: Colour?) {
+        BaseTest.Companion.mockInstancesSymbolsColour(sharedPreferences, colour)
+        Assertions.assertEquals(colour, ConfigurationService.getInstancesSymbolsColours(context))
+        Mockito.verifyNoMoreInteractions(editor)
     }
 }

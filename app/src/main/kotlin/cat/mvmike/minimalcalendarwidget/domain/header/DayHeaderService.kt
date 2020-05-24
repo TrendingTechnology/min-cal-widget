@@ -1,53 +1,44 @@
 // Copyright (c) 2018, Miquel Martí <miquelmarti111@gmail.com>
 // See LICENSE for licensing information
+package cat.mvmike.minimalcalendarwidget.domain.header
 
-package cat.mvmike.minimalcalendarwidget.domain.header;
+import android.content.Context
+import android.widget.RemoteViews
+import cat.mvmike.minimalcalendarwidget.BaseTest
+import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
+import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
+import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
+import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentMatchers
+import org.mockito.InOrder
+import org.mockito.Mockito
+import java.time.DayOfWeek
 
-import android.content.Context;
-import android.widget.RemoteViews;
-
-import java.time.DayOfWeek;
-
-import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme;
-import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver;
-
-public final class DayHeaderService {
-
-    public static void setDayHeaders(final Context context, final RemoteViews widgetRv) {
-
-        RemoteViews headerRowRv = SystemResolver.get().createHeaderRow(context);
-
-        int firstDayOfWeek = ConfigurationService.getStartWeekDay(context).ordinal();
-        Theme theme = ConfigurationService.getTheme(context);
-
-        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-
-            int currentOrdinal = dayOfWeek.ordinal();
-            int newOrdinal = (firstDayOfWeek + currentOrdinal) < DayOfWeek.values().length ?
-                firstDayOfWeek + currentOrdinal : (firstDayOfWeek + currentOrdinal) % DayOfWeek.values().length;
-
-            DayOfWeek current = DayOfWeek.values()[newOrdinal];
-
-            int cellHeaderThemeId;
-            switch (current) {
-
-                case SATURDAY:
-                    cellHeaderThemeId = theme.getCellHeaderSaturday();
-                    break;
-
-                case SUNDAY:
-                    cellHeaderThemeId = theme.getCellHeaderSunday();
-                    break;
-
-                default:
-                    cellHeaderThemeId = theme.getCellHeader();
+object DayHeaderService {
+    fun setDayHeaders(context: Context?, widgetRv: RemoteViews?) {
+        val headerRowRv: RemoteViews = SystemResolver.Companion.get().createHeaderRow(context)
+        val firstDayOfWeek = ConfigurationService.getStartWeekDay(context).ordinal
+        val theme = ConfigurationService.getTheme(context)
+        for (dayOfWeek in DayOfWeek.values()) {
+            val currentOrdinal = dayOfWeek.ordinal
+            val newOrdinal = if (firstDayOfWeek + currentOrdinal < DayOfWeek.values().size) firstDayOfWeek + currentOrdinal else (firstDayOfWeek + currentOrdinal) % DayOfWeek.values().size
+            val current = DayOfWeek.values()[newOrdinal]
+            var cellHeaderThemeId: Int
+            cellHeaderThemeId = when (current) {
+                DayOfWeek.SATURDAY -> theme.cellHeaderSaturday
+                DayOfWeek.SUNDAY -> theme.cellHeaderSunday
+                else -> theme.cellHeader
             }
-
-            SystemResolver.get().addHeaderDayToHeader(context, headerRowRv,
-                SystemResolver.get().getAbbreviatedDayOfWeekTranslated(context, current), cellHeaderThemeId);
+            SystemResolver.Companion.get().addHeaderDayToHeader(context, headerRowRv,
+                    SystemResolver.Companion.get().getAbbreviatedDayOfWeekTranslated(context, current), cellHeaderThemeId)
         }
-
-        SystemResolver.get().addHeaderRowToWidget(widgetRv, headerRowRv);
+        SystemResolver.Companion.get().addHeaderRowToWidget(widgetRv, headerRowRv)
     }
 }

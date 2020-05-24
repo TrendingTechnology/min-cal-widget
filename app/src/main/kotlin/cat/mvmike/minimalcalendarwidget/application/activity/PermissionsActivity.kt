@@ -1,37 +1,42 @@
 // Copyright (c) 2016, Miquel Martí <miquelmarti111@gmail.com>
 // See LICENSE for licensing information
+package cat.mvmike.minimalcalendarwidget.application.activity
 
-package cat.mvmike.minimalcalendarwidget.application.activity;
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import cat.mvmike.minimalcalendarwidget.BaseTest
+import cat.mvmike.minimalcalendarwidget.application.MonthWidget
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
+import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
+import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentMatchers
+import org.mockito.InOrder
+import org.mockito.Mockito
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-
-import cat.mvmike.minimalcalendarwidget.application.MonthWidget;
-
-public final class PermissionsActivity extends Activity {
-
-    private static final int READ_CALENDAR_PERM = 225;
-
-    @Override
-    protected void onStart() {
-
-        super.onStart();
-
-        setResult(Activity.RESULT_CANCELED);
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, READ_CALENDAR_PERM);
+class PermissionsActivity : Activity() {
+    override fun onStart() {
+        super.onStart()
+        setResult(RESULT_CANCELED)
+        ActivityCompat.requestPermissions(this, arrayOf<String?>(Manifest.permission.READ_CALENDAR), READ_CALENDAR_PERM)
     }
 
-    @Override
-    public void onRequestPermissionsResult(final int requestCode, final @NonNull String[] permissions, final @NonNull int[] grantResults) {
-
-        if (requestCode == READ_CALENDAR_PERM && grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            setResult(Activity.RESULT_OK);
-            MonthWidget.forceRedraw(this);
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        if (requestCode == READ_CALENDAR_PERM && grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            setResult(RESULT_OK)
+            MonthWidget.Companion.forceRedraw(this)
         }
+        finish()
+    }
 
-        this.finish();
+    companion object {
+        private const val READ_CALENDAR_PERM = 225
     }
 }

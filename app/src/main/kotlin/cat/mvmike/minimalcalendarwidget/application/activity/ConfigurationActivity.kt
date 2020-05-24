@@ -1,131 +1,134 @@
 // Copyright (c) 2016, Miquel Martí <miquelmarti111@gmail.com>
 // See LICENSE for licensing information
+package cat.mvmike.minimalcalendarwidget.application.activity
 
-package cat.mvmike.minimalcalendarwidget.application.activity;
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.text.method.LinkMovementMethod
+import android.view.View
+import android.view.Window
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import cat.mvmike.minimalcalendarwidget.BaseTest
+import cat.mvmike.minimalcalendarwidget.R
+import cat.mvmike.minimalcalendarwidget.application.MonthWidget
+import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurableItem
+import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Colour
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Symbol
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme
+import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
+import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
+import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentMatchers
+import org.mockito.InOrder
+import org.mockito.Mockito
+import java.time.DayOfWeek
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.text.method.LinkMovementMethod;
-import android.view.Window;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
-
-import java.time.DayOfWeek;
-
-import cat.mvmike.minimalcalendarwidget.R;
-import cat.mvmike.minimalcalendarwidget.application.MonthWidget;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurableItem;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Colour;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Symbol;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme;
-import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver;
-
-public final class ConfigurationActivity extends AppCompatActivity {
-
-    public static void start(final Context context) {
-
-        Intent configurationIntent = new Intent(context, ConfigurationActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(configurationIntent);
+class ConfigurationActivity : AppCompatActivity() {
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        setContentView(R.layout.configuration)
+        setHyperlinks()
+        setAvailableValues()
+        loadPreviousConfig()
+        applyListener()
     }
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.configuration);
-
-        setHyperlinks();
-
-        setAvailableValues();
-        loadPreviousConfig();
-
-        applyListener();
+    private fun setHyperlinks() {
+        (findViewById<View?>(R.id.source) as TextView).movementMethod = LinkMovementMethod.getInstance()
     }
 
-    private void setHyperlinks() {
-        ((TextView) findViewById(R.id.source)).setMovementMethod(LinkMovementMethod.getInstance());
+    private fun applyListener() {
+        val dismissButton = findViewById<Button?>(R.id.applyButton)
+        dismissButton.setOnClickListener { v: View? ->
+            saveConfig()
+            finish()
+        }
     }
 
-    private void applyListener() {
-
-        Button dismissButton = findViewById(R.id.applyButton);
-        dismissButton.setOnClickListener(v -> {
-            saveConfig();
-            this.finish();
-        });
-    }
-
-    private void setAvailableValues() {
+    private fun setAvailableValues() {
 
         // THEMES
-        ArrayAdapter<String> adapterThemes = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-            SystemResolver.get().getThemeTranslatedValues(getApplicationContext()));
-        adapterThemes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) findViewById(R.id.themeSpinner)).setAdapter(adapterThemes);
+        val adapterThemes: ArrayAdapter<String?> = ArrayAdapter<String?>(this, android.R.layout.simple_spinner_item,
+                SystemResolver.Companion.get().getThemeTranslatedValues(applicationContext))
+        adapterThemes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        (findViewById<View?>(R.id.themeSpinner) as Spinner).adapter = adapterThemes
 
         // WEEK DAYS
-        ArrayAdapter<String> adapterWeekDays = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-            SystemResolver.get().getDayOfWeekTranslatedValues(getApplicationContext()));
-        adapterWeekDays.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) findViewById(R.id.startWeekDaySpinner)).setAdapter(adapterWeekDays);
+        val adapterWeekDays: ArrayAdapter<String?> = ArrayAdapter<String?>(this, android.R.layout.simple_spinner_item,
+                SystemResolver.Companion.get().getDayOfWeekTranslatedValues(applicationContext))
+        adapterWeekDays.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        (findViewById<View?>(R.id.startWeekDaySpinner) as Spinner).adapter = adapterWeekDays
 
         // SYMBOLS
-        ArrayAdapter<String> adapterSymbols = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-            SystemResolver.get().getInstancesSymbolsTranslatedValues(getApplicationContext()));
-        adapterSymbols.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) findViewById(R.id.symbolsSpinner)).setAdapter(adapterSymbols);
+        val adapterSymbols: ArrayAdapter<String?> = ArrayAdapter<String?>(this, android.R.layout.simple_spinner_item,
+                SystemResolver.Companion.get().getInstancesSymbolsTranslatedValues(applicationContext))
+        adapterSymbols.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        (findViewById<View?>(R.id.symbolsSpinner) as Spinner).adapter = adapterSymbols
 
         // SYMBOLS COLOUR
-        ArrayAdapter<String> adapterSymbolsColour = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
-            SystemResolver.get().getInstancesSymbolsColourTranslatedValues(getApplicationContext()));
-        adapterSymbolsColour.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) findViewById(R.id.symbolsColourSpinner)).setAdapter(adapterSymbolsColour);
+        val adapterSymbolsColour: ArrayAdapter<String?> = ArrayAdapter<String?>(this, android.R.layout.simple_spinner_item,
+                SystemResolver.Companion.get().getInstancesSymbolsColourTranslatedValues(applicationContext))
+        adapterSymbolsColour.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        (findViewById<View?>(R.id.symbolsColourSpinner) as Spinner).adapter = adapterSymbolsColour
     }
 
-    private void loadPreviousConfig() {
+    private fun loadPreviousConfig() {
 
         // THEMES
-        ((Spinner) findViewById(R.id.themeSpinner))
-            .setSelection(ConfigurationService.getTheme(getApplicationContext()).ordinal());
+        (findViewById<View?>(R.id.themeSpinner) as Spinner)
+                .setSelection(ConfigurationService.getTheme(applicationContext).ordinal)
 
         // WEEK DAYS
-        ((Spinner) findViewById(R.id.startWeekDaySpinner))
-            .setSelection(ConfigurationService.getStartWeekDay(getApplicationContext()).ordinal());
+        (findViewById<View?>(R.id.startWeekDaySpinner) as Spinner)
+                .setSelection(ConfigurationService.getStartWeekDay(applicationContext).ordinal)
 
         // SYMBOLS
-        ((Spinner) findViewById(R.id.symbolsSpinner))
-            .setSelection(ConfigurationService.getInstancesSymbols(getApplicationContext()).ordinal());
+        (findViewById<View?>(R.id.symbolsSpinner) as Spinner)
+                .setSelection(ConfigurationService.getInstancesSymbols(applicationContext).ordinal)
 
         // SYMBOLS COLOUR
-        ((Spinner) findViewById(R.id.symbolsColourSpinner))
-            .setSelection(ConfigurationService.getInstancesSymbolsColours(getApplicationContext()).ordinal());
+        (findViewById<View?>(R.id.symbolsColourSpinner) as Spinner)
+                .setSelection(ConfigurationService.getInstancesSymbolsColours(applicationContext).ordinal)
     }
 
-    private void saveConfig() {
+    private fun saveConfig() {
 
         // THEMES
-        int themesSelectedPosition = ((Spinner) findViewById(R.id.themeSpinner)).getSelectedItemPosition();
-        ConfigurationService.set(getApplicationContext(), ConfigurableItem.THEME, Theme.values()[themesSelectedPosition]);
+        val themesSelectedPosition = (findViewById<View?>(R.id.themeSpinner) as Spinner).selectedItemPosition
+        ConfigurationService.set(applicationContext, ConfigurableItem.THEME, Theme.values()[themesSelectedPosition])
 
         // WEEK DAYS
-        int weekDaySelectedPosition = ((Spinner) findViewById(R.id.startWeekDaySpinner)).getSelectedItemPosition();
-        ConfigurationService.set(getApplicationContext(), ConfigurableItem.FIRST_DAY_OF_WEEK, DayOfWeek.values()[weekDaySelectedPosition]);
+        val weekDaySelectedPosition = (findViewById<View?>(R.id.startWeekDaySpinner) as Spinner).selectedItemPosition
+        ConfigurationService.set(applicationContext, ConfigurableItem.FIRST_DAY_OF_WEEK, DayOfWeek.values()[weekDaySelectedPosition])
 
         // SYMBOLS
-        int symbolsSelectedPosition = ((Spinner) findViewById(R.id.symbolsSpinner)).getSelectedItemPosition();
-        ConfigurationService.set(getApplicationContext(), ConfigurableItem.INSTANCES_SYMBOLS, Symbol.values()[symbolsSelectedPosition]);
+        val symbolsSelectedPosition = (findViewById<View?>(R.id.symbolsSpinner) as Spinner).selectedItemPosition
+        ConfigurationService.set(applicationContext, ConfigurableItem.INSTANCES_SYMBOLS, Symbol.values()[symbolsSelectedPosition])
 
         // SYMBOLS COLOUR
-        int symbolsColourSelectedPosition = ((Spinner) findViewById(R.id.symbolsColourSpinner)).getSelectedItemPosition();
-        ConfigurationService.set(getApplicationContext(), ConfigurableItem.INSTANCES_SYMBOLS_COLOUR, Colour.values()[symbolsColourSelectedPosition]);
+        val symbolsColourSelectedPosition = (findViewById<View?>(R.id.symbolsColourSpinner) as Spinner).selectedItemPosition
+        ConfigurationService.set(applicationContext, ConfigurableItem.INSTANCES_SYMBOLS_COLOUR, Colour.values()[symbolsColourSelectedPosition])
+        MonthWidget.Companion.forceRedraw(applicationContext)
+    }
 
-        MonthWidget.forceRedraw(getApplicationContext());
+    companion object {
+        fun start(context: Context?) {
+            val configurationIntent = Intent(context, ConfigurationActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(configurationIntent)
+        }
     }
 }

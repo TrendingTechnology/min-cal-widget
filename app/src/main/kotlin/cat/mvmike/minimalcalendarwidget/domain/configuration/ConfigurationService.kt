@@ -1,57 +1,58 @@
 // Copyright (c) 2018, Miquel Martí <miquelmarti111@gmail.com>
 // See LICENSE for licensing information
+package cat.mvmike.minimalcalendarwidget.domain.configuration
 
-package cat.mvmike.minimalcalendarwidget.domain.configuration;
+import android.content.Context
+import android.content.SharedPreferences
+import cat.mvmike.minimalcalendarwidget.BaseTest
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Colour
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Symbol
+import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme
+import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
+import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentMatchers
+import org.mockito.InOrder
+import org.mockito.Mockito
+import java.time.DayOfWeek
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
-import java.time.DayOfWeek;
-
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Colour;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Symbol;
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme;
-
-import static android.content.Context.MODE_PRIVATE;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurableItem.FIRST_DAY_OF_WEEK;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurableItem.INSTANCES_SYMBOLS;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurableItem.INSTANCES_SYMBOLS_COLOUR;
-import static cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurableItem.THEME;
-
-public final class ConfigurationService {
-
-    private static final String PREFERENCES_ID = "mincal_prefs";
-
-    public static void clearConfiguration(final Context context) {
-        getConfiguration(context).edit().clear().apply();
+object ConfigurationService {
+    private val PREFERENCES_ID: String? = "mincal_prefs"
+    fun clearConfiguration(context: Context?) {
+        getConfiguration(context).edit().clear().apply()
     }
 
-    public static Theme getTheme(final Context context) {
-        return Theme.valueOf(getEnumString(context, THEME, Theme.BLACK));
+    fun getTheme(context: Context?): Theme? {
+        return Theme.valueOf(getEnumString(context, ConfigurableItem.THEME, Theme.BLACK))
     }
 
-    public static DayOfWeek getStartWeekDay(final Context context) {
-        return DayOfWeek.valueOf(getEnumString(context, FIRST_DAY_OF_WEEK, DayOfWeek.MONDAY));
+    fun getStartWeekDay(context: Context?): DayOfWeek? {
+        return DayOfWeek.valueOf(getEnumString(context, ConfigurableItem.FIRST_DAY_OF_WEEK, DayOfWeek.MONDAY))
     }
 
-    public static Symbol getInstancesSymbols(final Context context) {
-        return Symbol.valueOf(getEnumString(context, INSTANCES_SYMBOLS, Symbol.MINIMAL));
+    fun getInstancesSymbols(context: Context?): Symbol? {
+        return Symbol.valueOf(getEnumString(context, ConfigurableItem.INSTANCES_SYMBOLS, Symbol.MINIMAL))
     }
 
-    public static Colour getInstancesSymbolsColours(final Context context) {
-        return Colour.valueOf(getEnumString(context, INSTANCES_SYMBOLS_COLOUR, Colour.CYAN));
+    fun getInstancesSymbolsColours(context: Context?): Colour? {
+        return Colour.valueOf(getEnumString(context, ConfigurableItem.INSTANCES_SYMBOLS_COLOUR, Colour.CYAN))
     }
 
-    public static <T> void set(final Context context, final ConfigurableItem configurableItem, final T value) {
-        getConfiguration(context).edit().putString(configurableItem.key(), ((Enum) value).name()).apply();
+    operator fun <T> set(context: Context?, configurableItem: ConfigurableItem?, value: T?) {
+        getConfiguration(context).edit().putString(configurableItem.key(), (value as Enum<*>?).name).apply()
     }
 
-    private static String getEnumString(final Context context, final ConfigurableItem configurableItem, final Enum defaultValue) {
-        return getConfiguration(context).getString(configurableItem.key(), defaultValue.name());
+    private fun getEnumString(context: Context?, configurableItem: ConfigurableItem?, defaultValue: Enum<*>?): String? {
+        return getConfiguration(context).getString(configurableItem.key(), defaultValue.name)
     }
 
-    private static SharedPreferences getConfiguration(final Context context) {
-        return context.getSharedPreferences(PREFERENCES_ID, MODE_PRIVATE);
+    private fun getConfiguration(context: Context?): SharedPreferences? {
+        return context.getSharedPreferences(PREFERENCES_ID, Context.MODE_PRIVATE)
     }
-
 }
