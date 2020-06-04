@@ -33,11 +33,11 @@ internal class DayServiceTest : BaseTest() {
     @Test
     fun setDays_shouldReturnSafeDateSpanOfSystemTimeZoneInstances() {
         Mockito.reset(widgetRv)
-        BaseTest.Companion.mockStartWeekDay(sharedPreferences, DayOfWeek.MONDAY)
-        BaseTest.Companion.mockTheme(sharedPreferences, Theme.BLACK)
-        BaseTest.Companion.mockInstancesSymbols(sharedPreferences, Symbol.MINIMAL)
-        BaseTest.Companion.mockInstancesSymbolsColour(sharedPreferences, Colour.CYAN)
-        Mockito.`when`(systemResolver.systemLocalDate).thenReturn(LocalDate.of(2018, 12, 4))
+        mockStartWeekDay(sharedPreferences, DayOfWeek.MONDAY)
+        mockTheme(sharedPreferences, Theme.BLACK)
+        mockInstancesSymbols(sharedPreferences, Symbol.MINIMAL)
+        mockInstancesSymbolsColour(sharedPreferences, Colour.CYAN)
+        Mockito.`when`(systemResolver.getSystemLocalDate()).thenReturn(LocalDate.of(2018, 12, 4))
         Mockito.`when`(systemResolver.isReadCalendarPermitted(context)).thenReturn(true)
         Mockito.`when`(systemResolver.createDay(ArgumentMatchers.any(Context::class.java), ArgumentMatchers.anyInt())).thenReturn(cellRv)
         Mockito.`when`(systemResolver.getColorInstancesTodayId(context)).thenReturn(98) // today
@@ -46,7 +46,7 @@ internal class DayServiceTest : BaseTest() {
         DayService.setDays(context, widgetRv, getSpreadInstances())
 
         // per instance
-        Mockito.verify(systemResolver, Mockito.times(1)).systemLocalDate
+        Mockito.verify(systemResolver, Mockito.times(1)).getSystemLocalDate()
 
         // per week
         Mockito.verify(systemResolver, Mockito.times(6)).createRow(context)
@@ -60,7 +60,7 @@ internal class DayServiceTest : BaseTest() {
         Mockito.verify(systemResolver, Mockito.times(41)).getColorInstancesId(context, Colour.CYAN) // not today
         val inOrder = Mockito.inOrder(systemResolver)
         getExpectedDays().forEach(
-                Consumer { c: MutableMap.MutableEntry<String?, Boolean?>? ->
+                Consumer { c: MutableMap.MutableEntry<String, Boolean> ->
                     inOrder.verify(systemResolver, Mockito.times(1))
                             .addDayCellRemoteView(context, rowRv, cellRv, c.key, c.value, c.key.startsWith(" 0"), 1.2f, if (c.value) 98 else 99)
                 }
@@ -70,52 +70,51 @@ internal class DayServiceTest : BaseTest() {
 
     @ParameterizedTest
     @MethodSource("getCombinationOfThemesAndDayStatuses")
-    fun getDayLayout_shouldComputeBasedOnThemeAndDayStatus(theme: Theme?, ds: Day?, expectedResult: Int) {
+    fun getDayLayout_shouldComputeBasedOnThemeAndDayStatus(theme: Theme, ds: Day, expectedResult: Int) {
         Assertions.assertEquals(expectedResult, DayService.getDayLayout(theme, ds))
     }
 
     @ParameterizedTest
     @MethodSource("getCombinationOfInstanceSetsAndDayStatuses")
-    fun getNumberOfInstances_shouldComputeBasedOnInstanceSet(instanceSet: MutableSet<Instance?>?, ds: Day?, expectedResult: Int) {
+    fun getNumberOfInstances_shouldComputeBasedOnInstanceSet(instanceSet: MutableSet<Instance>, ds: Day, expectedResult: Int) {
         Assertions.assertEquals(expectedResult, DayService.getNumberOfInstances(instanceSet, ds))
     }
 
     @ParameterizedTest
     @MethodSource("getCombinationOfLocalDatesAndInitialLocalDate")
-    fun getInitialLocalDate_shouldGetInitialLocalDate(systemLocalDate: LocalDate?, dayOfWeek: DayOfWeek?, expectedInitialLocalDate: LocalDate?) {
+    fun getInitialLocalDate_shouldGetInitialLocalDate(systemLocalDate: LocalDate, dayOfWeek: DayOfWeek, expectedInitialLocalDate: LocalDate) {
         Assertions.assertEquals(expectedInitialLocalDate, DayService.getInitialLocalDate(systemLocalDate, dayOfWeek.ordinal))
     }
 
-    companion object {
-        private val TODAY_WEEKDAY: Day? = Day(
+        private val TODAY_WEEKDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 12, 4))
-        private val TODAY_SATURDAY: Day? = Day(
+        private val TODAY_SATURDAY: Day = Day(
                 LocalDate.of(2018, 12, 8),
                 LocalDate.of(2018, 12, 8))
-        private val TODAY_SUNDAY: Day? = Day(
+        private val TODAY_SUNDAY: Day = Day(
                 LocalDate.of(2018, 12, 9),
                 LocalDate.of(2018, 12, 9))
-        private val IN_MONTH_WEEKDAY: Day? = Day(
+        private val IN_MONTH_WEEKDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 12, 14))
-        private val IN_MONTH_SATURDAY: Day? = Day(
+        private val IN_MONTH_SATURDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 12, 15))
-        private val IN_MONTH_SUNDAY: Day? = Day(
+        private val IN_MONTH_SUNDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 12, 16))
-        private val NOT_IN_MONTH_WEEKDAY: Day? = Day(
+        private val NOT_IN_MONTH_WEEKDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 11, 23))
-        private val NOT_IN_MONTH_SATURDAY: Day? = Day(
+        private val NOT_IN_MONTH_SATURDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 11, 24))
-        private val NOT_IN_MONTH_SUNDAY: Day? = Day(
+        private val NOT_IN_MONTH_SUNDAY: Day = Day(
                 LocalDate.of(2018, 12, 4),
                 LocalDate.of(2018, 11, 25))
 
-        private fun getSpreadInstances(): MutableSet<Instance?>? {
+        private fun getSpreadInstances(): MutableSet<Instance> {
             return Stream.of(
                     Instance(1543190400000L, 1543276800000L, 0, 0),  // 11/26 all day
                     Instance(1543363200000L, 1543449600000L, 0, 0),  // 11/28 all day
@@ -146,7 +145,7 @@ internal class DayServiceTest : BaseTest() {
             ).collect(Collectors.toCollection { HashSet() })
         }
 
-        private fun getExpectedDays(): Stream<MutableMap.MutableEntry<String?, Boolean?>?>? {
+        private fun getExpectedDays(): Stream<MutableMap.MutableEntry<String, Boolean>> {
             return Stream.of(
                     AbstractMap.SimpleEntry(" 26 ·", false),
                     AbstractMap.SimpleEntry(" 27  ", false),
@@ -193,7 +192,7 @@ internal class DayServiceTest : BaseTest() {
             )
         }
 
-        private fun getCombinationOfThemesAndDayStatuses(): Stream<Arguments?>? {
+        private fun getCombinationOfThemesAndDayStatuses(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(Theme.BLACK, TODAY_WEEKDAY, 2131361826),
                     Arguments.of(Theme.BLACK, TODAY_SATURDAY, 2131361822),
@@ -225,7 +224,7 @@ internal class DayServiceTest : BaseTest() {
             )
         }
 
-        private fun getCombinationOfInstanceSetsAndDayStatuses(): Stream<Arguments?>? {
+        private fun getCombinationOfInstanceSetsAndDayStatuses(): Stream<Arguments> {
             return Stream.of( // all in
                     Arguments.of(Stream.of(
                             Instance(1543881600000L, 1543967999000L, 0, 0),  // 12/4 00:00 - 12/5 00:00
@@ -246,7 +245,7 @@ internal class DayServiceTest : BaseTest() {
             )
         }
 
-        private fun getCombinationOfLocalDatesAndInitialLocalDate(): Stream<Arguments?>? {
+        private fun getCombinationOfLocalDatesAndInitialLocalDate(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(
                             LocalDate.of(2020, 1, 20), DayOfWeek.MONDAY,
@@ -277,5 +276,5 @@ internal class DayServiceTest : BaseTest() {
                             LocalDate.of(2019, 12, 30))
             )
         }
-    }
+
 }

@@ -4,34 +4,21 @@ package cat.mvmike.minimalcalendarwidget.domain.entry
 
 import android.content.Context
 import android.widget.RemoteViews
-import cat.mvmike.minimalcalendarwidget.BaseTest
 import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
 import cat.mvmike.minimalcalendarwidget.domain.configuration.item.Theme
-import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
-import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
 import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.ArgumentMatchers
-import org.mockito.InOrder
-import org.mockito.Mockito
 import java.time.LocalDate
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.util.stream.IntStream
 
 object DayService {
-    private val PADDING: String? = " "
+    private val PADDING: String = " "
     private const val MONTH_FIRST_DAY = 1
     private const val MAXIMUM_DAYS_IN_MONTH = 31
     private const val NUM_WEEKS = 6
     private const val DAYS_IN_WEEK = 7
-    fun setDays(context: Context?, remoteViews: RemoteViews?, instanceSet: MutableSet<Instance?>?) {
+    fun setDays(context: Context, remoteViews: RemoteViews, instanceSet: MutableSet<Instance>) {
         val firstDayOfWeek = ConfigurationService.getStartWeekDay(context).ordinal
         val theme = ConfigurationService.getTheme(context)
         val symbol = ConfigurationService.getInstancesSymbols(context)
@@ -44,17 +31,17 @@ object DayService {
                 val currentDay = Day(systemLocalDate, localDate)
                 val cellRv: RemoteViews = SystemResolver.Companion.get().createDay(context, getDayLayout(theme, currentDay))
                 val numberOfInstances = getNumberOfInstances(instanceSet, currentDay)
-                val color: Int = if (currentDay.isToday) SystemResolver.Companion.get().getColorInstancesTodayId(context) else SystemResolver.Companion.get().getColorInstancesId(context, colour)
+                val color: Int = if (currentDay.isToday()) SystemResolver.Companion.get().getColorInstancesTodayId(context) else SystemResolver.Companion.get().getColorInstancesId(context, colour)
                 SystemResolver.Companion.get().addDayCellRemoteView(
                         context, rowRv, cellRv,
-                        PADDING + currentDay.dayOfMonthString + PADDING + symbol.getSymbol(numberOfInstances),
-                        currentDay.isToday, currentDay.isSingleDigitDay, symbol.relativeSize, color)
+                        PADDING + currentDay.getDayOfMonthString() + PADDING + symbol.getSymbol(numberOfInstances),
+                        currentDay.isToday(), currentDay.isSingleDigitDay(), symbol.getRelativeSize(), color)
             }
             SystemResolver.Companion.get().addRowToWidget(remoteViews, rowRv)
         }
     }
 
-    fun getDayLayout(theme: Theme?, ds: Day?): Int {
+    fun getDayLayout(theme: Theme, ds: Day): Int {
         if (ds.isToday()) {
             return theme.getCellToday(ds.getDayOfWeek())
         }
@@ -63,15 +50,15 @@ object DayService {
         } else theme.getCellNotThisMonth()
     }
 
-    fun getNumberOfInstances(instanceSet: MutableSet<Instance?>?, ds: Day?): Int {
-        return if (instanceSet == null || instanceSet.isEmpty()) {
+    fun getNumberOfInstances(instanceSet: MutableSet<Instance>, ds: Day): Int {
+        return if (instanceSet.isEmpty()) {
             0
         } else instanceSet.stream()
-                .filter { instance: Instance? -> ds.isInDay(instance.getStart(), instance.getEnd(), instance.isAllDay()) }
-                .count() as Int
+                .filter { instance: Instance -> ds.isInDay(instance.getStart(), instance.getEnd(), instance.isAllDay()) }
+                .count().toInt()
     }
 
-    fun getInitialLocalDate(systemLocalDate: LocalDate?, firstDayOfWeek: Int): LocalDate? {
+    fun getInitialLocalDate(systemLocalDate: LocalDate, firstDayOfWeek: Int): LocalDate {
         val firstDayOfMonth = LocalDate.of(systemLocalDate.getYear(), systemLocalDate.getMonthValue(), MONTH_FIRST_DAY)
         val difference = firstDayOfWeek - firstDayOfMonth[ChronoField.DAY_OF_WEEK] + 1
         val localDate = firstDayOfMonth.plus(difference.toLong(), ChronoUnit.DAYS)

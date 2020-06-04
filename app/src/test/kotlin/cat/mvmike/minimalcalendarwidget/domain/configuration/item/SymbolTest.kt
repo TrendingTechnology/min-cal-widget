@@ -10,18 +10,17 @@ import java.util.stream.Stream
 internal class SymbolTest {
     @ParameterizedTest
     @EnumSource(value = Symbol::class)
-    fun getSymbol_shouldReturnEmptyCharacterWhenNoInstances(symbol: Symbol?) {
+    fun getSymbol_shouldReturnEmptyCharacterWhenNoInstances(symbol: Symbol) {
         Assertions.assertEquals(" ", symbol.getSymbol(0))
     }
 
     @ParameterizedTest
     @MethodSource("getSymbolSetAndExpectedCharacter")
-    fun getSymbol_shouldReturnExpectedCharacter(symbol: Symbol?, numberOfInstances: Int, expectedCharacter: Char) {
+    fun getSymbol_shouldReturnExpectedCharacter(symbol: Symbol, numberOfInstances: Int, expectedCharacter: Char) {
         Assertions.assertEquals(expectedCharacter.toString(), symbol.getSymbol(numberOfInstances))
     }
 
-    companion object {
-        private fun getSymbolSetAndExpectedCharacter(): Stream<Arguments?>? {
+        private fun getSymbolSetAndExpectedCharacter(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(Symbol.MINIMAL, 1, '·'),
                     Arguments.of(Symbol.MINIMAL, 6, '◈'),
@@ -44,5 +43,5 @@ internal class SymbolTest {
                     Arguments.of(Symbol.BINARY, 9, '※')
             )
         }
-    }
+
 }

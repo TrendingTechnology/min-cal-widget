@@ -8,33 +8,20 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.provider.CalendarContract
 import android.util.Log
-import cat.mvmike.minimalcalendarwidget.BaseTest
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
-import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
-import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
 import cat.mvmike.minimalcalendarwidget.infrastructure.receiver.DateChangeReceiver
 import cat.mvmike.minimalcalendarwidget.infrastructure.receiver.InstanceChangeReceiver
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.ArgumentMatchers
-import org.mockito.InOrder
-import org.mockito.Mockito
 
 object ReceiverService {
-    private val DATE_CHANGE_RECEIVER: DateChangeReceiver? = DateChangeReceiver()
-    private val INSTANCE_CHANGE_RECEIVER: InstanceChangeReceiver? = InstanceChangeReceiver()
-    private val DATE_CHANGE_INTENT_FILTER: IntentFilter? = null
-    private val INSTANCE_CHANGE_INTENT_FILTER: IntentFilter? = null
-    fun registerReceivers(context: Context?) {
+    private val DATE_CHANGE_RECEIVER: DateChangeReceiver = DateChangeReceiver()
+    private val INSTANCE_CHANGE_RECEIVER: InstanceChangeReceiver = InstanceChangeReceiver()
+    private val DATE_CHANGE_INTENT_FILTER: IntentFilter
+    private val INSTANCE_CHANGE_INTENT_FILTER: IntentFilter
+    fun registerReceivers(context: Context) {
         context.getApplicationContext().registerReceiver(DATE_CHANGE_RECEIVER, DATE_CHANGE_INTENT_FILTER)
         context.getApplicationContext().registerReceiver(INSTANCE_CHANGE_RECEIVER, INSTANCE_CHANGE_INTENT_FILTER)
     }
 
-    fun unregisterReceivers(context: Context?) {
+    fun unregisterReceivers(context: Context) {
         try {
             context.getApplicationContext().unregisterReceiver(DATE_CHANGE_RECEIVER)
             context.getApplicationContext().unregisterReceiver(INSTANCE_CHANGE_RECEIVER)

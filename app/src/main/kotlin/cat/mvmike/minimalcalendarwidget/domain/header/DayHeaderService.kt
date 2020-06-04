@@ -4,25 +4,12 @@ package cat.mvmike.minimalcalendarwidget.domain.header
 
 import android.content.Context
 import android.widget.RemoteViews
-import cat.mvmike.minimalcalendarwidget.BaseTest
 import cat.mvmike.minimalcalendarwidget.domain.configuration.ConfigurationService
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
-import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
-import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
 import cat.mvmike.minimalcalendarwidget.infrastructure.SystemResolver
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.ArgumentMatchers
-import org.mockito.InOrder
-import org.mockito.Mockito
 import java.time.DayOfWeek
 
 object DayHeaderService {
-    fun setDayHeaders(context: Context?, widgetRv: RemoteViews?) {
+    fun setDayHeaders(context: Context, widgetRv: RemoteViews) {
         val headerRowRv: RemoteViews = SystemResolver.Companion.get().createHeaderRow(context)
         val firstDayOfWeek = ConfigurationService.getStartWeekDay(context).ordinal
         val theme = ConfigurationService.getTheme(context)
@@ -32,9 +19,9 @@ object DayHeaderService {
             val current = DayOfWeek.values()[newOrdinal]
             var cellHeaderThemeId: Int
             cellHeaderThemeId = when (current) {
-                DayOfWeek.SATURDAY -> theme.cellHeaderSaturday
-                DayOfWeek.SUNDAY -> theme.cellHeaderSunday
-                else -> theme.cellHeader
+                DayOfWeek.SATURDAY -> theme.getCellHeaderSaturday()
+                DayOfWeek.SUNDAY -> theme.getCellHeaderSunday()
+                else -> theme.getCellHeader()
             }
             SystemResolver.Companion.get().addHeaderDayToHeader(context, headerRowRv,
                     SystemResolver.Companion.get().getAbbreviatedDayOfWeekTranslated(context, current), cellHeaderThemeId)

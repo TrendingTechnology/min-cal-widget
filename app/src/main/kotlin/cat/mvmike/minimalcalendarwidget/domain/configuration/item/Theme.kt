@@ -2,20 +2,7 @@
 // See LICENSE for licensing information
 package cat.mvmike.minimalcalendarwidget.domain.configuration.item
 
-import cat.mvmike.minimalcalendarwidget.BaseTest
 import cat.mvmike.minimalcalendarwidget.R
-import cat.mvmike.minimalcalendarwidget.domain.configuration.item.ConfigurableItemTest
-import cat.mvmike.minimalcalendarwidget.domain.entry.DayServiceTest
-import cat.mvmike.minimalcalendarwidget.domain.header.DayHeaderServiceTest
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
-import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.ArgumentMatchers
-import org.mockito.InOrder
-import org.mockito.Mockito
 import java.time.DayOfWeek
 
 enum class Theme(private val mainLayout: Int, private val cellHeader: Int, private val cellHeaderSaturday: Int, private val cellHeaderSunday: Int, private val cellDay: Int,
@@ -77,7 +64,7 @@ enum class Theme(private val mainLayout: Int, private val cellHeader: Int, priva
         return cellHeaderSunday
     }
 
-    fun getCellToday(dayOfWeek: DayOfWeek?): Int {
+    fun getCellToday(dayOfWeek: DayOfWeek): Int {
         return when (dayOfWeek) {
             DayOfWeek.SATURDAY -> cellDaySaturdayToday
             DayOfWeek.SUNDAY -> cellDaySundayToday
@@ -85,7 +72,7 @@ enum class Theme(private val mainLayout: Int, private val cellHeader: Int, priva
         }
     }
 
-    fun getCellThisMonth(dayOfWeek: DayOfWeek?): Int {
+    fun getCellThisMonth(dayOfWeek: DayOfWeek): Int {
         return when (dayOfWeek) {
             DayOfWeek.SATURDAY -> cellDaySaturday
             DayOfWeek.SUNDAY -> cellDaySunday

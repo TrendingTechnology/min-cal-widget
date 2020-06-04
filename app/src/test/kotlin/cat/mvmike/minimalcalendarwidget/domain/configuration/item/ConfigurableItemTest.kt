@@ -12,20 +12,18 @@ import java.util.*
 internal class ConfigurableItemTest {
     @ParameterizedTest
     @ValueSource(strings = ["someRAndOmInputT", "ALL_UPPER_CASE", "alllowercase"])
-    fun getDisplayValue_shouldReturnOnlyFirstLetterUpperCase(input: String?) {
+    fun getDisplayValue_shouldReturnOnlyFirstLetterUpperCase(input: String) {
         assertFirstLetterUpperCaseOthersLowercase(ConfigurableItem.Companion.getDisplayValue(input))
     }
 
     @ParameterizedTest
     @EnumSource(value = ConfigurableItem::class)
-    fun key_shouldReturnLowerCaseName(configurableItem: ConfigurableItem?) {
+    fun key_shouldReturnLowerCaseName(configurableItem: ConfigurableItem) {
         Assertions.assertEquals(configurableItem.name.toLowerCase(Locale.ENGLISH), configurableItem.key())
     }
 
-    companion object {
-        private fun assertFirstLetterUpperCaseOthersLowercase(input: String?) {
+        private fun assertFirstLetterUpperCaseOthersLowercase(input: String) {
             Assertions.assertTrue(Character.isUpperCase(input.get(0)))
             Assertions.assertEquals(input.substring(1), input.substring(1).toLowerCase(Locale.ENGLISH))
-        }
     }
 }

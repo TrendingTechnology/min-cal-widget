@@ -24,32 +24,32 @@ internal class ConfigurationServiceTest : BaseTest() {
 
     @ParameterizedTest
     @EnumSource(value = Theme::class)
-    fun getTheme_shouldReturnSharedPreferencesValue(theme: Theme?) {
-        BaseTest.Companion.mockTheme(sharedPreferences, theme)
+    fun getTheme_shouldReturnSharedPreferencesValue(theme: Theme) {
+        mockTheme(sharedPreferences, theme)
         Assertions.assertEquals(theme, ConfigurationService.getTheme(context))
         Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
     @EnumSource(value = DayOfWeek::class)
-    fun getStartWeekDay_shouldReturnSharedPreferencesValue(dayOfWeek: DayOfWeek?) {
-        BaseTest.Companion.mockStartWeekDay(sharedPreferences, dayOfWeek)
+    fun getStartWeekDay_shouldReturnSharedPreferencesValue(dayOfWeek: DayOfWeek) {
+        mockStartWeekDay(sharedPreferences, dayOfWeek)
         Assertions.assertEquals(dayOfWeek, ConfigurationService.getStartWeekDay(context))
         Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
     @EnumSource(value = Symbol::class)
-    fun getInstancesSymbols_shouldReturnSharedPreferencesValue(symbol: Symbol?) {
-        BaseTest.Companion.mockInstancesSymbols(sharedPreferences, symbol)
+    fun getInstancesSymbols_shouldReturnSharedPreferencesValue(symbol: Symbol) {
+        mockInstancesSymbols(sharedPreferences, symbol)
         Assertions.assertEquals(symbol, ConfigurationService.getInstancesSymbols(context))
         Mockito.verifyNoMoreInteractions(editor)
     }
 
     @ParameterizedTest
     @EnumSource(value = Colour::class)
-    fun getInstancesSymbolsColours_shouldReturnSharedPreferencesValue(colour: Colour?) {
-        BaseTest.Companion.mockInstancesSymbolsColour(sharedPreferences, colour)
+    fun getInstancesSymbolsColours_shouldReturnSharedPreferencesValue(colour: Colour) {
+        mockInstancesSymbolsColour(sharedPreferences, colour)
         Assertions.assertEquals(colour, ConfigurationService.getInstancesSymbolsColours(context))
         Mockito.verifyNoMoreInteractions(editor)
     }

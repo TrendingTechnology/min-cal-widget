@@ -19,48 +19,47 @@ internal class InstanceServiceTest : BaseTest() {
     fun getInstancesWithTimeout_shouldReturnEmptyIfNotPermission() {
         Mockito.`when`(systemResolver.isReadCalendarPermitted(context)).thenReturn(false)
         val instances = InstanceService.getInstancesWithTimeout(context, 1000, TimeUnit.MILLISECONDS)
-        Assertions.assertTrue(instances.isPresent)
-        Assertions.assertTrue(instances.get().isEmpty())
+        Assertions.assertTrue(instances.isNotEmpty())
+        Assertions.assertTrue(instances.isEmpty())
     }
 
     @Test
     fun getInstancesWithTimeout_shouldReturnEmptyIfTimedOut() {
         Mockito.`when`(systemResolver.isReadCalendarPermitted(context)).thenReturn(true)
         val instances = InstanceService.getInstancesWithTimeout(context, 0, TimeUnit.MILLISECONDS)
-        Assertions.assertFalse(instances.isPresent)
+        Assertions.assertFalse(instances.isNotEmpty())
     }
 
     @Test
     fun getInstancesWithTimeout_shouldReadAllInstances() {
-        val expectedInstances: MutableSet<Instance?>? = Stream.of(
+        val expectedInstances: MutableSet<Instance> = Stream.of(
                 Instance(1543190400000L, 1543276800000L, 0, 0),  // 11/26 all day
                 Instance(1543881600000L, 1543968000000L, 0, 0) // 12/4 all day
         ).collect(Collectors.toCollection { HashSet() })
         Mockito.`when`(systemResolver.isReadCalendarPermitted(context)).thenReturn(true)
-        Mockito.`when`(systemResolver.systemLocalDate).thenReturn(LocalDate.of(2018, 12, 4))
+        Mockito.`when`(systemResolver.getSystemLocalDate()).thenReturn(LocalDate.of(2018, 12, 4))
         Mockito.`when`(systemResolver.getInstances(context, 1539982800000L, 1547758800000L)).thenReturn(expectedInstances)
         val instances = InstanceService.getInstancesWithTimeout(context, 200, TimeUnit.MILLISECONDS)
-        Assertions.assertTrue(instances.isPresent)
-        Assertions.assertEquals(expectedInstances, instances.get())
+        Assertions.assertTrue(instances.isNotEmpty())
+        Assertions.assertEquals(expectedInstances, instances)
     }
 
     @ParameterizedTest
     @MethodSource("getInstancesBetweenInstants")
-    fun readAllInstances_shouldFetchAllInstancesBetweenInstances(expectedInstances: MutableSet<Instance?>?) {
+    fun readAllInstances_shouldFetchAllInstancesBetweenInstances(expectedInstances: MutableSet<Instance>) {
         Mockito.`when`(systemResolver.isReadCalendarPermitted(context)).thenReturn(true)
-        Mockito.`when`(systemResolver.systemLocalDate).thenReturn(LocalDate.of(2018, 12, 4))
+        Mockito.`when`(systemResolver.getSystemLocalDate()).thenReturn(LocalDate.of(2018, 12, 4))
         Mockito.`when`(systemResolver.getInstances(context, 1539982800000L, 1547758800000L)).thenReturn(expectedInstances)
         Assertions.assertEquals(expectedInstances, InstanceService.readAllInstances(context))
     }
 
     @ParameterizedTest
     @MethodSource("getLocalDateAndBeginningOfSystemTimezoneInMillis")
-    fun toStartOfDayInEpochMilli_shouldReturnStartOfDayOfSystemTimeZone(localDate: LocalDate?, millis: Long) {
+    fun toStartOfDayInEpochMilli_shouldReturnStartOfDayOfSystemTimeZone(localDate: LocalDate, millis: Long) {
         Assertions.assertEquals(millis, InstanceService.toStartOfDayInEpochMilli(localDate))
     }
 
-    companion object {
-        private fun getInstancesBetweenInstants(): Stream<Arguments?>? {
+        private fun getInstancesBetweenInstants(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(Stream.of(
                             Instance(1543190400000L, 1543276800000L, 0, 0),  // 11/26 all day
@@ -74,7 +73,7 @@ internal class InstanceServiceTest : BaseTest() {
                     Arguments.of(Stream.of(
                             Instance(1546646400000L, 1546732800000L, 0, 0) // 01/05 all day
                     ).collect(Collectors.toCollection { HashSet() })),
-                    Arguments.of(java.util.HashSet<Any?>()),
+                    Arguments.of(java.util.HashSet<Any>()),
                     Arguments.of(Stream.of(
                             Instance(1543190400000L, 1543276800000L, 0, 0),  // 11/26 all day
                             Instance(1543363200000L, 1543449600000L, 0, 0),  // 11/28 all day
@@ -85,7 +84,7 @@ internal class InstanceServiceTest : BaseTest() {
             )
         }
 
-        private fun getLocalDateAndBeginningOfSystemTimezoneInMillis(): Stream<Arguments?>? {
+        private fun getLocalDateAndBeginningOfSystemTimezoneInMillis(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of("2016-01-01", 1451595600000L),
                     Arguments.of("2018-10-11", 1539205200000L),
@@ -94,5 +93,5 @@ internal class InstanceServiceTest : BaseTest() {
                     Arguments.of("3000-12-31", 32535118800000L)
             )
         }
-    }
+
 }

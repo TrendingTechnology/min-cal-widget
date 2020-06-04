@@ -21,6 +21,15 @@ abstract class BaseTest {
     protected val editor = Mockito.mock(SharedPreferences.Editor::class.java)
     protected val systemResolver = Mockito.mock(SystemResolver::class.java)
 
+    private val PREFERENCES_ID: String = "mincal_prefs"
+
+    @BeforeAll
+    fun beforeAll() {
+
+        // force a different timezone than UTC for testing
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"))
+    }
+
     @BeforeEach
     fun beforeEach() {
         Mockito.reset(context, sharedPreferences, editor)
@@ -37,30 +46,19 @@ abstract class BaseTest {
         }
     }
 
-    companion object {
-        private val PREFERENCES_ID: String? = "mincal_prefs"
+    protected fun mockTheme(sharedPreferences: SharedPreferences, theme: Theme) {
+        Mockito.`when`(sharedPreferences.getString(ConfigurableItem.THEME.key(), Theme.BLACK.name)).thenReturn(theme.name)
+    }
 
-        @BeforeAll
-        fun beforeAll() {
+    protected fun mockStartWeekDay(sharedPreferences: SharedPreferences, dayOfWeek: DayOfWeek) {
+        Mockito.`when`(sharedPreferences.getString(ConfigurableItem.FIRST_DAY_OF_WEEK.key(), DayOfWeek.MONDAY.name)).thenReturn(dayOfWeek.name)
+    }
 
-            // force a different timezone than UTC for testing
-            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Moscow"))
-        }
+    protected fun mockInstancesSymbolsColour(sharedPreferences: SharedPreferences, colour: Colour) {
+        Mockito.`when`(sharedPreferences.getString(ConfigurableItem.INSTANCES_SYMBOLS_COLOUR.key(), Colour.CYAN.name)).thenReturn(colour.name)
+    }
 
-        protected fun mockTheme(sharedPreferences: SharedPreferences?, theme: Theme?) {
-            Mockito.`when`(sharedPreferences.getString(ConfigurableItem.THEME.key(), Theme.BLACK.name)).thenReturn(theme.name)
-        }
-
-        protected fun mockStartWeekDay(sharedPreferences: SharedPreferences?, dayOfWeek: DayOfWeek?) {
-            Mockito.`when`(sharedPreferences.getString(ConfigurableItem.FIRST_DAY_OF_WEEK.key(), DayOfWeek.MONDAY.name)).thenReturn(dayOfWeek.name)
-        }
-
-        protected fun mockInstancesSymbolsColour(sharedPreferences: SharedPreferences?, colour: Colour?) {
-            Mockito.`when`(sharedPreferences.getString(ConfigurableItem.INSTANCES_SYMBOLS_COLOUR.key(), Colour.CYAN.name)).thenReturn(colour.name)
-        }
-
-        protected fun mockInstancesSymbols(sharedPreferences: SharedPreferences?, symbol: Symbol?) {
-            Mockito.`when`(sharedPreferences.getString(ConfigurableItem.INSTANCES_SYMBOLS.key(), Symbol.MINIMAL.name)).thenReturn(symbol.name)
-        }
+    protected fun mockInstancesSymbols(sharedPreferences: SharedPreferences, symbol: Symbol) {
+        Mockito.`when`(sharedPreferences.getString(ConfigurableItem.INSTANCES_SYMBOLS.key(), Symbol.MINIMAL.name)).thenReturn(symbol.name)
     }
 }

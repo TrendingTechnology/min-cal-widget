@@ -20,9 +20,9 @@ internal class DayHeaderServiceTest : BaseTest() {
 
     @ParameterizedTest
     @MethodSource("combinationOfStartWeekDayAndThemeConfig")
-    fun setDayHeaders_shouldAddViewBasedOnCurrentDayAndConfig(startWeekDay: DayOfWeek?, theme: Theme?) {
-        BaseTest.Companion.mockStartWeekDay(sharedPreferences, startWeekDay)
-        BaseTest.Companion.mockTheme(sharedPreferences, theme)
+    fun setDayHeaders_shouldAddViewBasedOnCurrentDayAndConfig(startWeekDay: DayOfWeek, theme: Theme) {
+        mockStartWeekDay(sharedPreferences, startWeekDay)
+        mockTheme(sharedPreferences, theme)
         Mockito.`when`(systemResolver.createHeaderRow(context)).thenReturn(headerRowRv)
         Mockito.`when`(systemResolver.getAbbreviatedDayOfWeekTranslated(context, DayOfWeek.MONDAY)).thenReturn("MON")
         Mockito.`when`(systemResolver.getAbbreviatedDayOfWeekTranslated(context, DayOfWeek.TUESDAY)).thenReturn("TUE")
@@ -35,7 +35,7 @@ internal class DayHeaderServiceTest : BaseTest() {
         Mockito.verify(systemResolver, Mockito.times(1)).createHeaderRow(context)
         val inOrder = Mockito.inOrder(systemResolver)
         rotateWeekDays(startWeekDay.ordinal, theme)
-                .forEach(Consumer { c: MutableMap.MutableEntry<String?, Int?>? -> inOrder.verify(systemResolver, Mockito.times(1)).addHeaderDayToHeader(context, headerRowRv, c.key, c.value) })
+                .forEach(Consumer { c: MutableMap.MutableEntry<String, Int> -> inOrder.verify(systemResolver, Mockito.times(1)).addHeaderDayToHeader(context, headerRowRv, c.key, c.value) })
         Mockito.verify(systemResolver, Mockito.times(1)).addHeaderRowToWidget(widgetRv, headerRowRv)
         Mockito.verify(systemResolver, Mockito.times(1)).getAbbreviatedDayOfWeekTranslated(context, DayOfWeek.MONDAY)
         Mockito.verify(systemResolver, Mockito.times(1)).getAbbreviatedDayOfWeekTranslated(context, DayOfWeek.TUESDAY)
@@ -47,27 +47,26 @@ internal class DayHeaderServiceTest : BaseTest() {
         Mockito.verifyNoMoreInteractions(systemResolver)
     }
 
-    companion object {
-        private fun combinationOfStartWeekDayAndThemeConfig(): Stream<Arguments?>? {
+        private fun combinationOfStartWeekDayAndThemeConfig(): Stream<Arguments> {
             return Stream.concat(
-                    Stream.of(*DayOfWeek.values()).map { dayOfWeek: DayOfWeek? -> Arguments.of(dayOfWeek, Theme.BLACK) },
+                    Stream.of(*DayOfWeek.values()).map { dayOfWeek: DayOfWeek -> Arguments.of(dayOfWeek, Theme.BLACK) },
                     Stream.concat(
-                            Stream.of(*DayOfWeek.values()).map { dayOfWeek: DayOfWeek? -> Arguments.of(dayOfWeek, Theme.GREY) },
-                            Stream.of(*DayOfWeek.values()).map { dayOfWeek: DayOfWeek? -> Arguments.of(dayOfWeek, Theme.WHITE) })
+                            Stream.of(*DayOfWeek.values()).map { dayOfWeek: DayOfWeek -> Arguments.of(dayOfWeek, Theme.GREY) },
+                            Stream.of(*DayOfWeek.values()).map { dayOfWeek: DayOfWeek -> Arguments.of(dayOfWeek, Theme.WHITE) })
             )
-        }
 
-        private fun rotateWeekDays(numberOfPositions: Int, theme: Theme?): Stream<MutableMap.MutableEntry<String?, Int?>?>? {
-            val weekdays = arrayOf<String?>("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
-            val result = arrayOfNulls<String?>(weekdays.size)
+
+        private fun rotateWeekDays(numberOfPositions: Int, theme: Theme): Stream<MutableMap.MutableEntry<String, Int>> {
+            val weekdays = arrayOf<String>("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+            val result = arrayOfNulls<String>(weekdays.size)
             for (i in weekdays.indices) {
                 result[(i + (weekdays.size - numberOfPositions)) % weekdays.size] = weekdays[i]
             }
             return Arrays.stream(result)
-                    .map { c: String? -> getWeekDayWithTheme(c, theme) }
+                    .map { c: String -> getWeekDayWithTheme(c, theme) }
         }
 
-        private fun getWeekDayWithTheme(weekday: String?, theme: Theme?): MutableMap.MutableEntry<String?, Int?>? {
+        private fun getWeekDayWithTheme(weekday: String, theme: Theme): MutableMap.MutableEntry<String, Int> {
             val cellHeaderThemeId: Int
             cellHeaderThemeId = when (weekday) {
                 "SAT" -> theme.getCellHeaderSaturday()

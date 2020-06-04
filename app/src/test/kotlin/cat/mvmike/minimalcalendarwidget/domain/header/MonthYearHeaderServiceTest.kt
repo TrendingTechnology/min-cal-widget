@@ -17,11 +17,11 @@ internal class MonthYearHeaderServiceTest : BaseTest() {
 
     @ParameterizedTest
     @MethodSource("getSpreadInstantsInEnglish")
-    fun setMonthYearHeader_shouldAddViewBasedOnCurrentMonthAndYearInEnglish(instant: Instant?, expectedMonthAndYear: String?) {
-        Mockito.`when`(systemResolver.instant).thenReturn(instant)
+    fun setMonthYearHeader_shouldAddViewBasedOnCurrentMonthAndYearInEnglish(instant: Instant, expectedMonthAndYear: String) {
+        Mockito.`when`(systemResolver.getInstant()).thenReturn(instant)
         Mockito.`when`(systemResolver.getLocale(context)).thenReturn(Locale.ENGLISH)
         MonthYearHeaderService.setMonthYearHeader(context, widgetRv)
-        Mockito.verify(systemResolver, Mockito.times(1)).instant
+        Mockito.verify(systemResolver, Mockito.times(1)).getInstant()
         Mockito.verify(systemResolver, Mockito.times(1)).getLocale(context)
         Mockito.verify(systemResolver, Mockito.times(1)).createMonthYearHeader(widgetRv, expectedMonthAndYear, 0.7f)
         Mockito.verifyNoMoreInteractions(systemResolver)
@@ -29,11 +29,11 @@ internal class MonthYearHeaderServiceTest : BaseTest() {
 
     @ParameterizedTest
     @MethodSource("getSpreadInstantsInCatalan")
-    fun setMonthYearHeader_shouldAddViewBasedOnCurrentMonthAndYearInCatalan(instant: Instant?, expectedMonthAndYear: String?) {
-        Mockito.`when`(systemResolver.instant).thenReturn(instant)
+    fun setMonthYearHeader_shouldAddViewBasedOnCurrentMonthAndYearInCatalan(instant: Instant, expectedMonthAndYear: String) {
+        Mockito.`when`(systemResolver.getInstant()).thenReturn(instant)
         Mockito.`when`(systemResolver.getLocale(context)).thenReturn(Locale("ca", "ES"))
         MonthYearHeaderService.setMonthYearHeader(context, widgetRv)
-        Mockito.verify(systemResolver, Mockito.times(1)).instant
+        Mockito.verify(systemResolver, Mockito.times(1)).getInstant()
         Mockito.verify(systemResolver, Mockito.times(1)).getLocale(context)
         Mockito.verify(systemResolver, Mockito.times(1)).createMonthYearHeader(widgetRv, expectedMonthAndYear, 0.7f)
         Mockito.verifyNoMoreInteractions(systemResolver)
@@ -41,18 +41,17 @@ internal class MonthYearHeaderServiceTest : BaseTest() {
 
     @ParameterizedTest
     @MethodSource("getSpreadInstantsInRussian")
-    fun setMonthYearHeader_shouldAddViewBasedOnCurrentMonthAndYearInRussian(instant: Instant?, expectedMonthAndYear: String?) {
-        Mockito.`when`(systemResolver.instant).thenReturn(instant)
+    fun setMonthYearHeader_shouldAddViewBasedOnCurrentMonthAndYearInRussian(instant: Instant, expectedMonthAndYear: String) {
+        Mockito.`when`(systemResolver.getInstant()).thenReturn(instant)
         Mockito.`when`(systemResolver.getLocale(context)).thenReturn(Locale("ru", "RU"))
         MonthYearHeaderService.setMonthYearHeader(context, widgetRv)
-        Mockito.verify(systemResolver, Mockito.times(1)).instant
+        Mockito.verify(systemResolver, Mockito.times(1)).getInstant()
         Mockito.verify(systemResolver, Mockito.times(1)).getLocale(context)
         Mockito.verify(systemResolver, Mockito.times(1)).createMonthYearHeader(widgetRv, expectedMonthAndYear, 0.7f)
         Mockito.verifyNoMoreInteractions(systemResolver)
     }
 
-    companion object {
-        private fun getSpreadInstantsInEnglish(): Stream<Arguments?>? {
+        private fun getSpreadInstantsInEnglish(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(Instant.ofEpochMilli(896745600000L), "June 1998"),  // 1998-06-02 00:00 UTC
                     Arguments.of(Instant.ofEpochMilli(1516924800000L), "January 2018"),  // 2018-01-26 00:00 UTC
@@ -62,7 +61,7 @@ internal class MonthYearHeaderServiceTest : BaseTest() {
             )
         }
 
-        private fun getSpreadInstantsInCatalan(): Stream<Arguments?>? {
+        private fun getSpreadInstantsInCatalan(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(Instant.ofEpochMilli(896745600000L), "Juny 1998"),  // 1998-06-02 00:00 UTC
                     Arguments.of(Instant.ofEpochMilli(1516924800000L), "Gener 2018"),  // 2018-01-26 00:00 UTC
@@ -72,7 +71,7 @@ internal class MonthYearHeaderServiceTest : BaseTest() {
             )
         }
 
-        private fun getSpreadInstantsInRussian(): Stream<Arguments?>? {
+        private fun getSpreadInstantsInRussian(): Stream<Arguments> {
             return Stream.of(
                     Arguments.of(Instant.ofEpochMilli(896745600000L), "Июнь 1998"),  // 1998-06-02 00:00 UTC
                     Arguments.of(Instant.ofEpochMilli(1516924800000L), "Январь 2018"),  // 2018-01-26 00:00 UTC
@@ -81,5 +80,5 @@ internal class MonthYearHeaderServiceTest : BaseTest() {
                     Arguments.of(Instant.ofEpochMilli(1544659200000L), "Декабрь 2018") // 2018-12-13 00:00 UTC
             )
         }
-    }
+
 }
