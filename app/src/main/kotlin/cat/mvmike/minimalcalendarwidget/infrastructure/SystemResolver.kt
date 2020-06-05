@@ -190,8 +190,10 @@ class SystemResolver private constructor() {
     private val SUPPORTED_LOCALES: MutableSet<Locale> = HashSet(Arrays.asList(
             Locale.ENGLISH,
             Locale("ca"),  // catalan
+            Locale("de"), // german
             Locale("es"),  // spanish
             Locale("fr"),  // french
+            Locale("hr"), // croatian
             Locale("nb"),  // norwegian
             Locale("nl"),  // dutch
             Locale("ru") // russian
